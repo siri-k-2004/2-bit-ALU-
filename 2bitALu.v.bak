@@ -1,0 +1,33 @@
+// 2-bit ALU module: Performs addition, subtraction, AND, OR, XOR
+module alu_2bit(
+    input  [1:0] A,      // 2-bit input operand A
+    input  [1:0] B,      // 2-bit input operand B
+    input  [2:0] op,     // 3-bit operation code (control signal)
+    output reg [1:0] result, // 2-bit result output
+    output reg       carry   // Carry-out / borrow flag
+);
+    // Combinational logic: select operation based on 'op'
+    always @(*) begin
+        case (op)
+            3'b000: {carry, result} = A + B;  // Addition: {carry,sum}
+            3'b001: {carry, result} = A - B;  // Subtraction: {borrow (as carry),difference}
+            3'b010: begin 
+                        result = A & B;      // Bitwise AND
+                        carry  = 1'b0;       // No carry for AND
+                    end
+            3'b011: begin 
+                        result = A | B;      // Bitwise OR
+                        carry  = 1'b0;       // No carry for OR
+                    end
+            3'b100: begin 
+                        result = A ^ B;      // Bitwise XOR
+                        carry  = 1'b0;       // No carry for XOR
+                    end
+            default: begin
+                        result = 2'b00;      // Default: zero result
+                        carry  = 1'b0;       // Default: no carry
+                    end
+        endcase
+    end
+endmodule
+

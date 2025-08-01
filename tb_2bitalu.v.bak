@@ -1,0 +1,54 @@
+module tb_alu_2bit;
+ // Declare registers for inputs to the ALU (driven by test bench)
+ reg [1:0] operand_a; 
+ reg [1:0] operand_b; 
+ reg [2:0] operation; 
+
+ // Declare wires for outputs from the ALU (monitored by test bench)
+ wire [1:0] result; 
+ wire carry_out; 
+
+ // Instantiate the 2-bit ALU module (Design Under Test - DUT)
+ // Using named port connections for clarity and robustness
+ alu_2bit uut(
+   .operand_a(operand_a), 
+   .operand_b(operand_b), 
+   .operation(operation), 
+   .result(result), 
+   .carry_out(carry_out)
+ ); 
+ 
+ // Initial block for stimulus generation and monitoring
+ initial begin
+     // Enable waveform dumping for simulation tools (e.g., ModelSim)
+     $dumpfile("tb_alu_2bit.vcd"); // Specify output file for waveforms
+     $dumpvars(0, tb_alu_2bit); // Dump all variables in the current scope
+
+     // Monitor inputs and outputs for changes and print to console
+     $monitor("Time=%0t | OpA=%b | OpB=%b | OpCode=%b | Result=%b | CarryOut=%b", 
+              $time, operand_a, operand_b, operation, result, carry_out);
+
+     // --- Exhaustive Test Cases for all 2-bit operand combinations and operations ---
+     integer i, j, k;
+     reg [2:0] op_codes [0:4];
+     op_codes = 3'b000; // Addition
+     op_codes[1] = 3'b001; // Subtraction
+     op_codes[2] = 3'b010; // Logical AND
+     op_codes[3] = 3'b011; // Logical OR
+     op_codes = 3'b100; // Logical XOR
+
+     for (k = 0; k < 5; k = k + 1) begin // Loop through all operations
+         operation = op_codes[k];
+         for (i = 0; i < 4; i = i + 1) begin // Loop through all operand_a combinations (00, 01, 10, 11)
+             operand_a = i;
+             for (j = 0; j < 4; j = j + 1) begin // Loop through all operand_b combinations (00, 01, 10, 11)
+                 operand_b = j;
+                 #50; // Wait for 50 time units for signals to stabilize
+             end
+         end
+     end
+
+     // End simulation
+     #100 $finish; 
+ end
+endmodule
